@@ -48,7 +48,7 @@ public class StandingsService {
 		logger.info("Reading Credentials File.");
 		
         try {
-            File file = ResourceUtils.getFile("classpath:credentials.json");
+            File file = ResourceUtils.getFile("src/main/resources/credentials.json");
             
             if(!file.exists()) {
             	getInitialAuthorization();

@@ -111,8 +111,7 @@ public class HttpUtils {
         post.addHeader("Content-Type", CONTENT_TYPE);
         post.addHeader("User-Agent", USER_AGENT);
         
-        File file = ResourceUtils.getFile("classpath:" + applConfiguration.getAuthFile());
-        FileReader reader = new FileReader(file);
+        FileReader reader = new FileReader(ResourceUtils.getFile("src/main/resources/" + applConfiguration.getAuthFile()));
         
         JSONParser parser = new JSONParser(reader);
         @SuppressWarnings("unchecked")
@@ -150,8 +149,7 @@ public class HttpUtils {
     	String result = null;
     	
     	JSONObject jsonObj = null;
-    	File file = ResourceUtils.getFile("classpath:" + applConfiguration.getAuthFile());
-        FileReader reader = new FileReader(file);
+        FileReader reader = new FileReader(ResourceUtils.getFile("src/main/resources/" + applConfiguration.getAuthFile()));
         
         JSONParser parser = new JSONParser(reader);
         @SuppressWarnings("unchecked")
