@@ -45,7 +45,7 @@ public class StandingsService {
 	
 	private void readCredentials() {
 		
-		logger.info("Reading Credentials.");
+		logger.info("Reading Credentials File.");
 		
         try {
             File file = ResourceUtils.getFile("classpath:credentials.json");

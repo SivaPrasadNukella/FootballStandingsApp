@@ -67,6 +67,7 @@ public class ApplConfiguration {
 	}
 	
 	public void printConfiguration() {
+		logger.info("Reading OAuth Config File.");
 		logger.info("consumerKey: "+consumerKey+", consumerSecret: "+consumerSecret+", yahooAuthCode: "+yahooAuthCode+
 				", leagueKey: "+leagueKey+", team: "+team+", authFile: "+authFile+".");
 	}
