@@ -26,8 +26,10 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import com.test.football.ApplConfiguration;
+import com.test.football.exceptions.InvalidAuthorizationCode;
 import com.test.football.exceptions.UnAuthorizedException;
 
 @Component
@@ -82,6 +84,14 @@ public class HttpUtils {
         	result = EntityUtils.toString(response.getEntity());
             logger.info("Initial Authorization Result: "+result);
             
+            if(result.toUpperCase().contains("INVALID")) {
+            	throw new InvalidAuthorizationCode("OAuth authorization code expired or invalid. "
+            			+ "Update the new Authorization Code in oauth-config.properties, by making use of URL: "
+            			+ "https://api.login.yahoo.com/oauth2/request_auth?client_id="+ applConfiguration.getConsumerKey() +"&redirect_uri=oob&response_type=code&language=en-us");
+            }
+            
+        } catch(InvalidAuthorizationCode invalidAuthCode) {
+        	logger.info(invalidAuthCode.getMessage());
         } catch(Exception e) {
         	e.printStackTrace();
         }
@@ -101,8 +111,7 @@ public class HttpUtils {
         post.addHeader("Content-Type", CONTENT_TYPE);
         post.addHeader("User-Agent", USER_AGENT);
         
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(".").getFile() + "/" + applConfiguration.getAuthFile());
+        File file = ResourceUtils.getFile("classpath:" + applConfiguration.getAuthFile());
         FileReader reader = new FileReader(file);
         
         JSONParser parser = new JSONParser(reader);
@@ -141,13 +150,12 @@ public class HttpUtils {
     	String result = null;
     	
     	JSONObject jsonObj = null;
-    	ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(".").getFile() + "/" + applConfiguration.getAuthFile());
+    	File file = ResourceUtils.getFile("classpath:" + applConfiguration.getAuthFile());
         FileReader reader = new FileReader(file);
         
         JSONParser parser = new JSONParser(reader);
         @SuppressWarnings("unchecked")
-		Map<String, String> map= (LinkedHashMap<String, String>) parser.parse();
+		Map<String, String> map = (LinkedHashMap<String, String>) parser.parse();
 
         String accessToken = map.get("access_token");
         reader.close();

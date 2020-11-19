@@ -1,20 +1,24 @@
 package com.test.football.service;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import org.apache.tomcat.util.json.JSONParser;
+import org.apache.tomcat.util.json.ParseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.test.football.exceptions.EmptyFileException;
 import com.test.football.model.HttpUtils;
 import com.test.football.model.Standings;
 
@@ -27,12 +31,12 @@ public class StandingsService {
 	
 	public StandingsService() {
 		logger = Logger.getLogger(getClass().getName());
-		readCredentials();
 	}
 	
 	@Autowired
 	public void setHttpUtils(HttpUtils httpUtils) {
 		this.httpUtils = httpUtils;
+		readCredentials();
 	}
 	
 	public HttpUtils getHttpUtils() {
@@ -48,8 +52,18 @@ public class StandingsService {
             
             if(!file.exists()) {
             	getInitialAuthorization();
+            }else {
+                FileReader reader = new FileReader(file);
+                
+                JSONParser parser = new JSONParser(reader);
+                @SuppressWarnings("unchecked")
+				Map<String, String> map = (LinkedHashMap<String, String>) parser.parse();
+                if(map.isEmpty()) {
+                	throw new EmptyFileException("File credentials.json is Empty.");
+                }
+                
             }
-        } catch (IOException e) {
+        } catch (IOException | EmptyFileException | ParseException e) {
         	
             e.printStackTrace();
             getInitialAuthorization();
@@ -59,14 +73,17 @@ public class StandingsService {
 	private void getInitialAuthorization() {
 		try {
 			String result = httpUtils.getInitialAuthorization();
-			ClassLoader classLoader = getClass().getClassLoader();
 			
-			File file = new File(classLoader.getResource(".").getFile() + "/credentials.json");
+			if(!result.toUpperCase().contains("INVALID")) {
+				
+				File file = ResourceUtils.getFile("src/main/resources/credentials.json");
 			
-			FileWriter writer = new FileWriter(file);    
-			writer.write(result);    
-			writer.close();
-			logger.info("File credentials.json created!");
+				FileWriter writer = new FileWriter(file);    
+				writer.write(result);    
+				writer.close();
+				
+				logger.info("File credentials.json created.");
+			}
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -74,7 +91,7 @@ public class StandingsService {
 		}
 	}
 	
-	public String getFootballStandings() {
+	public List<Standings> getFootballStandings() {
 		
 		JSONObject jsonObj = null;
 		List<Standings> standingsList = new ArrayList<>();
@@ -142,22 +159,7 @@ public class StandingsService {
 			e.printStackTrace();
 		}
 		
-		return getJSONString(standingsList);
-	}
-	
-	private <T> String getJSONString(List<T> list) {
-		
-		String result = null;
-		final ObjectMapper mapper = new ObjectMapper();
-		
-		try {
-			result = mapper.writeValueAsString(list);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return result;
+		return standingsList;
 	}
 	
 }

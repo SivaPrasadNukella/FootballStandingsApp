@@ -14,7 +14,8 @@ import org.springframework.context.annotation.PropertySource;
  */
 @Configuration
 @ComponentScan("com.test.football.model")
-@PropertySource(ignoreResourceNotFound = true, value = "oauth-config.properties")
+//@PropertySource(ignoreResourceNotFound = true, value={"classpath:oauth-config.properties"})
+@PropertySource(value={"classpath:oauth-config.properties"})
 public class ApplConfiguration {
 
 	private Logger logger;
