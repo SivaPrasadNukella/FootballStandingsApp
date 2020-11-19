@@ -180,10 +180,12 @@ public class HttpUtils {
             logger.info("Http Response Headers: "+headers);
 
             if (entity != null) {
-                // return it as a String
+                
+            	// convert it as a String
                 result = EntityUtils.toString(entity);
                 //logger.info("API call for Football Standings Result: "+result);
                 
+                // convert it as a JSON Object
                 jsonObj = XML.toJSONObject(result);
             }
 
@@ -192,14 +194,16 @@ public class HttpUtils {
         	logger.info("Trying to get New OAuth Token as existing one Expired.");
         	
         	result = refreshAuthorizationToken();
-			  
-			FileWriter fw = new FileWriter(file);
+			
+			FileWriter fw = new FileWriter(ResourceUtils.getFile("src/main/resources/credentials.json"));
 			fw.write(result);
 			fw.close();
 			logger.info("File credentials.json created.");
 			  
 			apiRequestForStandings();
 			 
+        } catch(Exception e) {
+        	e.printStackTrace();
         }
         
         return jsonObj;

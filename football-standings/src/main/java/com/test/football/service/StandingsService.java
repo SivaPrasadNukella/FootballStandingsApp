@@ -75,10 +75,8 @@ public class StandingsService {
 			String result = httpUtils.getInitialAuthorization();
 			
 			if(!result.toUpperCase().contains("INVALID")) {
-				
-				File file = ResourceUtils.getFile("src/main/resources/credentials.json");
 			
-				FileWriter writer = new FileWriter(file);    
+				FileWriter writer = new FileWriter(ResourceUtils.getFile("src/main/resources/credentials.json"));    
 				writer.write(result);    
 				writer.close();
 				
@@ -93,10 +91,10 @@ public class StandingsService {
 	
 	public List<Standings> getFootballStandings() {
 		
-		JSONObject jsonObj = null;
 		List<Standings> standingsList = new ArrayList<>();
 		
 		try {
+			JSONObject jsonObj = null;
 			jsonObj =  httpUtils.apiRequestForStandings();
 			
 			JSONArray result = jsonObj.
